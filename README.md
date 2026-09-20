@@ -1,22 +1,43 @@
 # InstaDL
 
-A lightweight Python CLI for downloading **public Instagram videos and Reels** in the highest quality available.
+<p align="center">
+  <img src="assets/instadl.png" alt="InstaDL Logo" width="180">
+</p>
+
+<p align="center">
+  <strong>A lightweight Python CLI for downloading public Instagram videos and Reels in the highest quality available.</strong>
+</p>
+
+<p align="center">
+  Built with Python, yt-dlp and FFmpeg.
+</p>
+
+---
+
+InstaDL is a lightweight Python CLI for downloading **public Instagram videos and Reels** in the highest quality available.
 
 InstaDL uses [yt-dlp](https://github.com/yt-dlp/yt-dlp) to retrieve Instagram media and **FFmpeg** to merge the highest-quality video and audio streams when they are provided separately.
 
+The project can also be compiled into a **standalone Windows application**, allowing InstaDL to run without requiring Python, yt-dlp, or FFmpeg to be installed separately on the user's system.
+
 ## Features
 
-* Download public Instagram Reels and video posts
-* Automatically select the highest-quality video stream
-* Automatically select the highest-quality audio stream
-* Merge separate video and audio streams into MP4
-* Automatically detect the current Windows user
-* Save downloads to the user's `Videos\instadl` directory
-* Display download progress, speed, and ETA
-* Retry temporary download failures
-* Support direct URLs through command-line arguments
-* Modular Python architecture
-* Designed to work as a global Windows CLI command
+- Download public Instagram Reels and video posts
+- Automatically select the highest-quality video stream
+- Automatically select the highest-quality audio stream
+- Merge separate video and audio streams into MP4
+- Automatically detect the current Windows user
+- Save downloads to the user's `Videos\instadl` directory
+- Display download progress, speed, and ETA
+- Retry temporary download failures
+- Support direct URLs through command-line arguments
+- Modular Python architecture
+- Standalone Windows executable
+- Bundled Python runtime
+- Bundled yt-dlp
+- Bundled FFmpeg and FFprobe
+- No Python installation required for the compiled application
+- No system-wide FFmpeg installation required for the compiled application
 
 ## Project Structure
 
@@ -24,41 +45,115 @@ InstaDL uses [yt-dlp](https://github.com/yt-dlp/yt-dlp) to retrieve Instagram me
 instadl/
 │
 ├── index.py
+├── setup.spec
 ├── requirements.txt
+├── requirements-dev.txt
 ├── README.md
 ├── LICENSE
 ├── .gitignore
+│
+├── assets/
+│   ├── instadl.ico
+│   └── instadl.png
+│
+├── bin/
+│   ├── ffmpeg.exe
+│   └── ffprobe.exe
 │
 └── instadl/
     ├── __init__.py
     ├── config.py
     ├── downloader.py
     ├── progress.py
+    ├── runtime.py
     └── validators.py
 ```
 
 ## Modules
 
-| File                    | Purpose                                  |
-| ----------------------- | ---------------------------------------- |
-| `index.py`              | Application entry point and CLI handling |
-| `instadl/config.py`     | Download and yt-dlp configuration        |
-| `instadl/downloader.py` | Instagram download logic                 |
-| `instadl/progress.py`   | Download progress handling               |
-| `instadl/validators.py` | Instagram URL validation                 |
-| `instadl/__init__.py`   | Python package initialization            |
+| File | Purpose |
+| --- | --- |
+| `index.py` | Application entry point and CLI handling |
+| `instadl/config.py` | Download and yt-dlp configuration |
+| `instadl/downloader.py` | Instagram download logic |
+| `instadl/progress.py` | Download progress handling |
+| `instadl/runtime.py` | Runtime and bundled dependency path resolution |
+| `instadl/validators.py` | Instagram URL validation |
+| `instadl/__init__.py` | Python package initialization |
+| `setup.spec` | PyInstaller standalone application configuration |
+| `bin/ffmpeg.exe` | Bundled FFmpeg executable |
+| `bin/ffprobe.exe` | Bundled FFprobe executable |
+| `assets/instadl.ico` | Windows executable icon |
+| `assets/instadl.png` | Project logo used by GitHub and documentation |
+
+## Standalone Windows Application
+
+InstaDL can be distributed as a standalone Windows application.
+
+The compiled version includes the required runtime components and dependencies, including:
+
+- Python runtime
+- yt-dlp
+- FFmpeg
+- FFprobe
+- InstaDL modules and dependencies
+
+Users of the compiled application therefore **do not need to install Python, pip, yt-dlp, or FFmpeg separately**.
+
+The standalone distribution has the following structure:
+
+```text
+InstaDL/
+│
+├── InstaDL.exe
+│
+└── _internal/
+    ├── bin/
+    │   ├── ffmpeg.exe
+    │   └── ffprobe.exe
+    │
+    └── ...
+```
+
+Run the application:
+
+```powershell
+.\InstaDL.exe
+```
+
+InstaDL will prompt for an Instagram URL.
+
+You can also provide the URL directly:
+
+```powershell
+.\InstaDL.exe "https://www.instagram.com/reel/XXXXXXXXXXX/"
+```
+
+Downloaded videos are automatically stored in:
+
+```text
+C:\Users\<USERNAME>\Videos\instadl
+```
 
 ## Requirements
 
-InstaDL requires:
+### Standalone Application
 
-* Python 3.10+
-* yt-dlp
-* FFmpeg
+If you are using the compiled `InstaDL.exe` release, there are no separate Python or FFmpeg installation requirements.
+
+The application includes the dependencies required to run InstaDL.
+
+### Running from Source
+
+Developers running InstaDL directly from its Python source require:
+
+- Python 3.10+
+- yt-dlp
+- FFmpeg and FFprobe
 
 The project is currently designed primarily for **Windows**.
 
-## Installation
+## Installation from Source
 
 ### 1. Clone the repository
 
@@ -92,7 +187,7 @@ py -m pip install --upgrade pip
 py -m pip install -r requirements.txt
 ```
 
-The current `requirements.txt` contains:
+The main runtime dependency is:
 
 ```text
 yt-dlp
@@ -100,32 +195,49 @@ yt-dlp
 
 ## FFmpeg
 
-FFmpeg is required when Instagram provides the highest-quality video and audio as separate streams.
+FFmpeg is used when Instagram provides the highest-quality video and audio as separate streams.
 
-On Windows, install FFmpeg with Winget:
+InstaDL uses FFmpeg to merge those streams into the final video.
 
-```powershell
-winget install --id Gyan.FFmpeg -e
+### Standalone Build
+
+The standalone Windows application includes:
+
+```text
+bin/
+├── ffmpeg.exe
+└── ffprobe.exe
 ```
 
-Close and reopen your terminal after installation.
+The application automatically detects the bundled binaries at runtime.
 
-Verify that FFmpeg is available:
+No system-wide FFmpeg installation is required.
 
-```powershell
-ffmpeg -version
+### Development
+
+When running from source, the project expects the FFmpeg binaries under:
+
+```text
+bin/
+├── ffmpeg.exe
+└── ffprobe.exe
 ```
 
-If the command displays FFmpeg version information, the installation is ready.
+You can verify them with:
+
+```powershell
+.\bin\ffmpeg.exe -version
+.\bin\ffprobe.exe -version
+```
 
 ## Usage
 
-### Interactive Mode
+### Standalone Application
 
-Run:
+Interactive mode:
 
 ```powershell
-py .\index.py
+.\InstaDL.exe
 ```
 
 InstaDL will ask for an Instagram URL:
@@ -134,11 +246,23 @@ InstaDL will ask for an Instagram URL:
 Paste public Instagram Reel URL:
 ```
 
-Paste a public Instagram Reel or video-post URL and press Enter.
+Paste a public Reel or video-post URL and press Enter.
 
-### Command-Line Mode
+You can also pass the URL directly:
 
-You can also provide the URL directly:
+```powershell
+.\InstaDL.exe "https://www.instagram.com/reel/XXXXXXXXXXX/"
+```
+
+### Running from Source
+
+Interactive mode:
+
+```powershell
+py .\index.py
+```
+
+Or provide the URL directly:
 
 ```powershell
 py .\index.py "https://www.instagram.com/reel/XXXXXXXXXXX/"
@@ -196,71 +320,11 @@ When the highest-quality video and audio are provided as separate streams, FFmpe
 
 The resulting quality depends on the streams made available by Instagram.
 
-## Global `instadl` Command
-
-InstaDL can be configured as a global Windows command, allowing it to be launched from any directory.
-
-### Create the launcher
-
-Create a file named:
-
-```text
-instadl.cmd
-```
-
-Add:
-
-```bat
-@echo off
-py "C:\path\to\instadl\index.py" %*
-```
-
-Replace:
-
-```text
-C:\path\to\instadl
-```
-
-with the actual location where you cloned the repository.
-
-For example:
-
-```bat
-@echo off
-py "C:\Users\John\Documents\instadl\index.py" %*
-```
-
-### Add the launcher to PATH
-
-Add the directory containing `instadl.cmd` to your Windows user `PATH`.
-
-Close and reopen your terminal after changing `PATH`.
-
-You can then run:
-
-```powershell
-instadl
-```
-
-from any directory.
-
-You can also provide the Instagram URL directly:
-
-```powershell
-instadl "https://www.instagram.com/reel/XXXXXXXXXXX/"
-```
-
-Regardless of your current terminal directory, downloaded videos are stored in:
-
-```text
-C:\Users\<USERNAME>\Videos\instadl
-```
-
 ## Example
 
 ```text
 ============================================================
-Instagram Reel Downloader
+InstaDL
 ============================================================
 URL    : https://www.instagram.com/reel/XXXXXXXXXXX/
 Folder : C:\Users\John\Videos\instadl
@@ -283,11 +347,127 @@ Quality  : 1080x1920
 Folder   : C:\Users\John\Videos\instadl
 ```
 
+## Building the Standalone Application
+
+InstaDL uses **PyInstaller** to generate a standalone Windows application.
+
+### 1. Install Development Dependencies
+
+Create or activate your virtual environment:
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+Install the development dependencies:
+
+```powershell
+py -m pip install -r requirements-dev.txt
+```
+
+A typical `requirements-dev.txt` contains:
+
+```text
+-r requirements.txt
+pyinstaller
+```
+
+Alternatively, install PyInstaller directly:
+
+```powershell
+py -m pip install pyinstaller
+```
+
+Verify:
+
+```powershell
+py -m PyInstaller --version
+```
+
+### 2. Verify FFmpeg
+
+Make sure these files exist:
+
+```text
+bin/
+├── ffmpeg.exe
+└── ffprobe.exe
+```
+
+Verify them:
+
+```powershell
+.\bin\ffmpeg.exe -version
+.\bin\ffprobe.exe -version
+```
+
+### 3. Verify the Application Icon
+
+The Windows executable icon should exist at:
+
+```text
+assets/instadl.ico
+```
+
+The GitHub/documentation logo should exist at:
+
+```text
+assets/instadl.png
+```
+
+### 4. Clean Previous Builds
+
+Before creating a new release:
+
+```powershell
+Remove-Item -Recurse -Force .\build -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force .\dist -ErrorAction SilentlyContinue
+```
+
+### 5. Build
+
+Run:
+
+```powershell
+py -m PyInstaller --clean --noconfirm setup.spec
+```
+
+PyInstaller will generate:
+
+```text
+dist/
+└── InstaDL/
+    ├── InstaDL.exe
+    └── _internal/
+        └── ...
+```
+
+The `InstaDL.exe` executable contains the custom InstaDL application icon.
+
+## PyInstaller Configuration
+
+The `setup.spec` configuration is responsible for packaging:
+
+- InstaDL source modules
+- Python runtime
+- yt-dlp and its required modules
+- FFmpeg
+- FFprobe
+- Application metadata
+- Windows application icon
+
+The FFmpeg binaries are copied into the packaged application and located automatically at runtime.
+
+This allows the final application to operate independently of the Python and FFmpeg installations on the user's computer.
+
 ## Updating yt-dlp
 
 Instagram can change how its website and media delivery work over time.
 
-If downloads unexpectedly stop working, update yt-dlp before troubleshooting further:
+### Source Installation
+
+If downloads unexpectedly stop working, update yt-dlp:
 
 ```powershell
 py -m pip install -U yt-dlp
@@ -299,6 +479,18 @@ If you're using the project's virtual environment:
 .\.venv\Scripts\Activate.ps1
 py -m pip install -U yt-dlp
 ```
+
+After updating yt-dlp, rebuild the standalone application if you want the newer version included in `InstaDL.exe`.
+
+```powershell
+py -m PyInstaller --clean --noconfirm setup.spec
+```
+
+### Standalone Release
+
+Users of the standalone release cannot update its bundled yt-dlp package independently through `pip`.
+
+A new InstaDL build must be released with the updated dependency.
 
 ## Troubleshooting
 
@@ -328,31 +520,60 @@ py --version
 
 If Python is installed correctly, you can use `py` throughout the project.
 
-### FFmpeg is not installed
+### PyInstaller is not recognized
 
-If you receive an error similar to:
+Instead of:
+
+```powershell
+pyinstaller setup.spec
+```
+
+use:
+
+```powershell
+py -m PyInstaller setup.spec
+```
+
+Verify the installation with:
+
+```powershell
+py -m PyInstaller --version
+```
+
+### FFmpeg is not found
+
+For development, verify:
+
+```powershell
+.\bin\ffmpeg.exe -version
+.\bin\ffprobe.exe -version
+```
+
+Make sure the project contains:
 
 ```text
-ERROR: You have requested merging of multiple formats but ffmpeg is not installed.
+bin/
+├── ffmpeg.exe
+└── ffprobe.exe
 ```
 
-install FFmpeg:
+For standalone releases, these binaries should be included automatically by PyInstaller.
+
+### Application Icon Does Not Update
+
+Windows Explorer may cache application icons when repeatedly rebuilding an executable using the same filename.
+
+If the newly built executable still displays an older icon, temporarily rename it:
 
 ```powershell
-winget install --id Gyan.FFmpeg -e
+Rename-Item ".\dist\InstaDL\InstaDL.exe" "InstaDL-Test.exe"
 ```
 
-Then close and reopen your terminal.
+If the new filename displays the correct icon, the executable itself is correct and Windows Explorer is displaying a cached icon.
 
-Verify:
+### Instagram Download Fails
 
-```powershell
-ffmpeg -version
-```
-
-### Instagram download fails
-
-First update yt-dlp:
+When running from source, first update yt-dlp:
 
 ```powershell
 py -m pip install -U yt-dlp
@@ -368,11 +589,13 @@ The application is intentionally split into small modules to make it easier to m
 
 The current architecture separates:
 
-* CLI handling
-* Configuration
-* Download logic
-* Progress reporting
-* URL validation
+- CLI handling
+- Configuration
+- Download logic
+- Progress reporting
+- Runtime dependency resolution
+- URL validation
+- Build configuration
 
 To run the project during development:
 
@@ -386,22 +609,33 @@ Install or update dependencies with:
 py -m pip install -r requirements.txt
 ```
 
+Build the standalone application with:
+
+```powershell
+py -m PyInstaller --clean --noconfirm setup.spec
+```
+
 ## Roadmap
 
 Potential future improvements include:
 
-* [ ] Batch URL downloads
-* [ ] Download history
-* [ ] Configurable output directories
-* [ ] Extended CLI arguments and options
-* [ ] Improved logging
-* [ ] Automatic dependency checks
-* [ ] Automatic FFmpeg detection
-* [ ] Duplicate-download detection
-* [ ] Unit tests
-* [ ] Installable Python package
-* [ ] Native `instadl` CLI installation
-* [ ] Additional public-video source support
+- [ ] Batch URL downloads
+- [ ] Download history
+- [ ] Configurable output directories
+- [ ] Extended CLI arguments and options
+- [ ] Improved logging
+- [x] Bundled FFmpeg and FFprobe
+- [x] Automatic bundled FFmpeg detection
+- [x] Standalone Windows application
+- [x] Custom application icon
+- [ ] Duplicate-download detection
+- [ ] Unit tests
+- [ ] Windows installer
+- [ ] Automatic update system
+- [ ] GitHub release automation
+- [ ] Installable Python package
+- [ ] Native `instadl` CLI installation
+- [ ] Additional public-video source support
 
 ## Contributing
 
@@ -440,4 +674,10 @@ See the [`LICENSE`](LICENSE) file for details.
 
 ---
 
-Developed by [Wissem Hammami](https://github.com/WissemHammami009).
+<p align="center">
+  <img src="assets/instadl.png" alt="InstaDL" width="80">
+</p>
+
+<p align="center">
+  Developed by <a href="https://github.com/WissemHammami009">Wissem Hammami</a>
+</p>
